@@ -6,6 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		B9DC68AA2DD4A870007AB73E /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = B9DC68A92DD4A870007AB73E /* FirebaseAnalytics */; };
+		B9DC68AC2DD4A870007AB73E /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = B9DC68AB2DD4A870007AB73E /* FirebaseAuth */; };
+		B9DC68AE2DD4A870007AB73E /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = B9DC68AD2DD4A870007AB73E /* FirebaseCore */; };
+		B9DC68B02DD4A870007AB73E /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = B9DC68AF2DD4A870007AB73E /* FirebaseFirestore */; };
+		B9DC68B22DD4A870007AB73E /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B9DC68B12DD4A870007AB73E /* FirebaseMessaging */; };
+		B9DC68B42DD4A870007AB73E /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = B9DC68B32DD4A870007AB73E /* FirebaseStorage */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		B9DC685E2DD3F29B007AB73E /* Learnix.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Learnix.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -14,7 +23,7 @@
 		B9DC68702DD3F29D007AB73E /* Exceptions for "Learnix" folder in "Learnix" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				"Supporting Files/Info.plist",
 			);
 			target = B9DC685D2DD3F29B007AB73E /* Learnix */;
 		};
@@ -36,6 +45,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B9DC68AA2DD4A870007AB73E /* FirebaseAnalytics in Frameworks */,
+				B9DC68B02DD4A870007AB73E /* FirebaseFirestore in Frameworks */,
+				B9DC68B22DD4A870007AB73E /* FirebaseMessaging in Frameworks */,
+				B9DC68AE2DD4A870007AB73E /* FirebaseCore in Frameworks */,
+				B9DC68AC2DD4A870007AB73E /* FirebaseAuth in Frameworks */,
+				B9DC68B42DD4A870007AB73E /* FirebaseStorage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +93,12 @@
 			);
 			name = Learnix;
 			packageProductDependencies = (
+				B9DC68A92DD4A870007AB73E /* FirebaseAnalytics */,
+				B9DC68AB2DD4A870007AB73E /* FirebaseAuth */,
+				B9DC68AD2DD4A870007AB73E /* FirebaseCore */,
+				B9DC68AF2DD4A870007AB73E /* FirebaseFirestore */,
+				B9DC68B12DD4A870007AB73E /* FirebaseMessaging */,
+				B9DC68B32DD4A870007AB73E /* FirebaseStorage */,
 			);
 			productName = Learnix;
 			productReference = B9DC685E2DD3F29B007AB73E /* Learnix.app */;
@@ -107,6 +128,9 @@
 			);
 			mainGroup = B9DC68552DD3F29B007AB73E;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B9DC68A82DD4A86F007AB73E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B9DC685F2DD3F29B007AB73E /* Products */;
 			projectDirPath = "";
@@ -147,7 +171,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 59GXW65R65;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Learnix/Info.plist;
+				INFOPLIST_FILE = "Learnix/Supporting Files/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -175,7 +199,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 59GXW65R65;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Learnix/Info.plist;
+				INFOPLIST_FILE = "Learnix/Supporting Files/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -337,6 +361,50 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B9DC68A82DD4A86F007AB73E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.12.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B9DC68A92DD4A870007AB73E /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B9DC68A82DD4A86F007AB73E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		B9DC68AB2DD4A870007AB73E /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B9DC68A82DD4A86F007AB73E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		B9DC68AD2DD4A870007AB73E /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B9DC68A82DD4A86F007AB73E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		B9DC68AF2DD4A870007AB73E /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B9DC68A82DD4A86F007AB73E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		B9DC68B12DD4A870007AB73E /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B9DC68A82DD4A86F007AB73E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		B9DC68B32DD4A870007AB73E /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B9DC68A82DD4A86F007AB73E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B9DC68562DD3F29B007AB73E /* Project object */;
 }
