@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Firebase
 import FirebaseAuth
 
 class RegisterViewController: UIViewController {
@@ -20,18 +21,19 @@ class RegisterViewController: UIViewController {
     
     @IBAction func registerButton(_ sender: UIButton) {
         guard let email = registerEmailTextField.text, !email.isEmpty,
-              let password = registerPasswordTextField.text, !password.isEmpty else {
-            showAlert(title: "Eksik bilgi", message: "Lütfen e-mail ve şifre giriniz.")
-            return
-        }
-        
-        Auth.auth().signIn(withEmail: registerEmailTextField.text!, password: registerPasswordTextField.text!) { authdata, error in
-            if let error = error {
-                self.showAlert(title: "Kayıt hatası", message: error.localizedDescription)
-            }
-            self.showAlert(title: "Başarılı", message: "Kayıt oldunuz.")
-            self.dismiss(animated: true, completion: nil)
-        }
+                      let password = registerPasswordTextField.text, !password.isEmpty else {
+            showAlert(title: "Eksik Bilgi", message: "Lütfen e-posta ve şifre giriniz.")
+                    return
+                }
+
+                Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
+                    if let error = error {
+                        self.showAlert(title: "Olmadı", message: "Kayıt başarısız: \(error.localizedDescription)")
+                        return
+                    }
+                    // Kayıt başarılı, segue ile geç
+                    self.performSegue(withIdentifier: "registerToHome", sender: self)
+                }
     }
     
     private func showAlert(title: String, message: String, completion: (() -> Void)? = nil) {

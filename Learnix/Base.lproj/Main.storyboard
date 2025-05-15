@@ -69,12 +69,13 @@
                         <outlet property="passwordTextField" destination="Kw0-Bl-wul" id="7gH-5F-xeS"/>
                         <outlet property="queryLabel" destination="Oa0-3E-BIK" id="9oL-l9-j1q"/>
                         <outlet property="titleLabel" destination="1RX-Dl-kvl" id="TER-VJ-8cb"/>
-                        <segue destination="yVD-m4-vos" kind="presentation" modalPresentationStyle="fullScreen" id="eg5-Nu-4F8"/>
+                        <segue destination="yVD-m4-vos" kind="presentation" identifier="loginToHome" modalPresentationStyle="fullScreen" id="eg5-Nu-4F8"/>
+                        <segue destination="4cQ-Xr-CL7" kind="presentation" identifier="toRegister" modalPresentationStyle="fullScreen" id="jc0-Th-v8h"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="104.58015267175573" y="-3.5211267605633805"/>
+            <point key="canvasLocation" x="-115" y="-4"/>
         </scene>
         <!--Register View Controller-->
         <scene sceneID="uuk-Cf-6Kq">
@@ -116,15 +117,17 @@
                         <viewLayoutGuide key="safeArea" id="g1W-aa-ySp"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
+                    <navigationItem key="navigationItem" id="tws-Ap-Mtz"/>
                     <connections>
                         <outlet property="registerEmailTextField" destination="8GM-Yc-N9a" id="R7X-is-8CX"/>
                         <outlet property="registerLabel" destination="g4x-08-uNt" id="s9D-Kd-qaa"/>
                         <outlet property="registerPasswordTextField" destination="BpP-id-Uaw" id="TGM-vy-9a2"/>
+                        <segue destination="yVD-m4-vos" kind="presentation" identifier="registerToHome" modalPresentationStyle="fullScreen" id="IbL-5T-mdG"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="fAw-69-Qw3" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="104.58015267175573" y="690.84507042253529"/>
+            <point key="canvasLocation" x="-115" y="770"/>
         </scene>
         <!--Item 2-->
         <scene sceneID="6pu-ad-oqK">
@@ -178,6 +181,9 @@
             <point key="canvasLocation" x="909" y="-3"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="eg5-Nu-4F8"/>
+    </inferredMetricsTieBreakers>
     <resources>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
