@@ -6,24 +6,58 @@
 //
 
 import UIKit
+import Firebase
+import FirebaseFirestore
 
-class HomeViewController: UIViewController {
+class HomeViewController: UITableViewController {
+
+    @IBOutlet weak var motivationLabel: UILabel!
+    
+    var dersler: [String] = []
+       
+    var motivationQuotes = [
+        "Bugün harika bir gün olacak!",
+        "Her gün yeni bir başlangıçtır.",
+        "Küçük adımlar büyük farklar yaratır.",
+        "Pes etme, başarı yakında!"
+    ]
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return dersler.count
+    }
+
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "homeCell", for: indexPath)
+        cell.textLabel?.text = dersler[indexPath.row]
+        return cell
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        tableView.dataSource = self
+        showMotivation()
+        loadDersler()
     }
-    
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    func showMotivation() {
+        motivationLabel.text = motivationQuotes.randomElement()
     }
-    */
 
+    func loadDersler() {
+        let db = Firestore.firestore()
+        db.collection("Dersler").getDocuments { snapshot, error in
+            if let error = error {
+                DispatchQueue.main.async {
+                    let alert = UIAlertController(title: "Hata", message: error.localizedDescription, preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "Tamam", style: .default))
+                    self.present(alert, animated: true)
+                }
+                return
+            }
+            self.dersler = snapshot?.documents.compactMap { $0["name"] as? String } ?? []
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+        }
+    }
 }

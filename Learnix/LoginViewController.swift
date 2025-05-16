@@ -31,7 +31,7 @@ class LoginViewController: UIViewController {
     }
 */
     
-    @IBAction func signInButton(_ sender: UIButton) {
+    @IBAction func loginButton(_ sender: UIButton) {
         guard let email = emailTextField.text, !email.isEmpty,
               let password = passwordTextField.text, !password.isEmpty else {
             showAlert(title: "Eksik Bilgi", message: "Lütfen e-posta ve şifre girin.")
@@ -49,7 +49,7 @@ class LoginViewController: UIViewController {
         }
     }
     
-    @IBAction func signUpButton(_ sender: UIButton) {
+    @IBAction func registerTappedButton(_ sender: UIButton) {
         performSegue(withIdentifier: "toRegister", sender: self)
     }
     
