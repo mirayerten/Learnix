@@ -20,12 +20,16 @@ class StudentAddLessonViewController: UIViewController, UIDocumentPickerDelegate
     @IBOutlet weak var teacherNameLabel: UILabel!
     @IBOutlet weak var teacherNameTextField: UITextField!
     @IBOutlet weak var noteLabel: UILabel!
-    
+    @IBOutlet weak var pdfImageView: UIImageView!
     
     var selectedPdfURL: URL?
+    var ders: Ders?
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        pdfImageView.isHidden = true
+        
+        
     }
 
     @IBAction func uploadPdfTapped(_ sender: UIButton) {
@@ -37,8 +41,28 @@ class StudentAddLessonViewController: UIViewController, UIDocumentPickerDelegate
 
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         guard let selectedUrl = urls.first else { return }
-        selectedPdfURL = selectedUrl
-        print("PDF seçildi: \(selectedUrl.lastPathComponent)")
+        guard selectedUrl.startAccessingSecurityScopedResource() else {
+                print("Dosyaya erişim sağlanamadı.")
+                return
+            }
+        defer { selectedUrl.stopAccessingSecurityScopedResource() }
+
+            // Geçici dizine kopyala
+            let fileManager = FileManager.default
+            let tmpDir = FileManager.default.temporaryDirectory
+            let tmpFileURL = tmpDir.appendingPathComponent(selectedUrl.lastPathComponent)
+
+            do {
+                if fileManager.fileExists(atPath: tmpFileURL.path) {
+                    try fileManager.removeItem(at: tmpFileURL) // Önceki varsa sil
+                }
+                try fileManager.copyItem(at: selectedUrl, to: tmpFileURL)
+                selectedPdfURL = tmpFileURL
+                print("PDF kopyalandı: \(tmpFileURL.lastPathComponent)")
+            } catch {
+                print("PDF kopyalanamadı: \(error.localizedDescription)")
+            }
+        self.pdfImageView.isHidden = false
     }
 
     @IBAction func saveLessonTapped(_ sender: UIButton) {
