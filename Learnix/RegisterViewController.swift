@@ -50,7 +50,7 @@ class RegisterViewController: UIViewController {
                     self.showAlert(title: "Firestore Hatası", message: error.localizedDescription)
                 } else {
                     // Kayıt başarılı, segue ile geç
-                    self.performSegue(withIdentifier: "registerToHome", sender: self)
+                    self.performSegue(withIdentifier: "registerToProfile", sender: self)
                 }
             }
         }
