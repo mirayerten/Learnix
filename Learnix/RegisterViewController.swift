@@ -8,13 +8,16 @@
 import UIKit
 import Firebase
 import FirebaseAuth
+import FirebaseFirestore
 
 class RegisterViewController: UIViewController {
     
     @IBOutlet weak var registerLabel: UILabel!
     @IBOutlet weak var registerEmailTextField: UITextField!
     @IBOutlet weak var registerPasswordTextField: UITextField!
-
+    @IBOutlet weak var roleSegmentedControl: UISegmentedControl!
+    
+    let db = Firestore.firestore()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,15 +30,30 @@ class RegisterViewController: UIViewController {
             showAlert(title: "Eksik Bilgi", message: "Lütfen e-posta ve şifre giriniz.")
                     return
                 }
+        // Rol belirleme (0: öğrenci, 1: öğretmen)
+                let selectedRole = roleSegmentedControl.selectedSegmentIndex == 0 ? "student" : "teacher"
 
-                Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
-                    if let error = error {
-                        self.showAlert(title: "Olmadı", message: "Kayıt başarısız: \(error.localizedDescription)")
-                        return
-                    }
+        Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
+            if let error = error {
+                self.showAlert(title: "Olmadı", message: "Kayıt başarısız: \(error.localizedDescription)")
+                return
+            }
+            
+            guard let uid = authResult?.user.uid else { return }
+            
+            // Firestore'a rol bilgisini kaydet
+            self.db.collection("Users").document(uid).setData([
+                "email": email,
+                "role": selectedRole
+            ]) { error in
+                if let error = error {
+                    self.showAlert(title: "Firestore Hatası", message: error.localizedDescription)
+                } else {
                     // Kayıt başarılı, segue ile geç
                     self.performSegue(withIdentifier: "registerToHome", sender: self)
                 }
+            }
+        }
     }
     
     private func showAlert(title: String, message: String, completion: (() -> Void)? = nil) {
