@@ -267,21 +267,92 @@
             </objects>
             <point key="canvasLocation" x="904" y="2057"/>
         </scene>
-        <!--View Controller-->
+        <!--Learn View Controller-->
         <scene sceneID="6pu-ad-oqK">
             <objects>
-                <viewController id="1xo-98-2F7" sceneMemberID="viewController">
+                <viewController id="1xo-98-2F7" customClass="LearnViewController" customModule="Learnix" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="GW3-kJ-1o3">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cYc-81-tuc">
+                                <rect key="frame" x="46" y="103" width="301" height="250"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="Vap-TG-EG0">
+                                        <rect key="frame" x="16" y="190" width="269" height="44"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JqF-K7-9UU">
+                                                <rect key="frame" x="0.0" y="0.0" width="130.66666666666666" height="44"/>
+                                                <state key="normal" title="Button"/>
+                                                <buttonConfiguration key="configuration" style="plain" title="&lt;Önceki"/>
+                                                <connections>
+                                                    <action selector="previousTapped:" destination="1xo-98-2F7" eventType="touchUpInside" id="Aza-ZL-qfl"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FMt-Og-y3X">
+                                                <rect key="frame" x="138.66666666666663" y="0.0" width="130.33333333333337" height="44"/>
+                                                <state key="normal" title="Button"/>
+                                                <buttonConfiguration key="configuration" style="plain" title="Sonraki&gt;"/>
+                                                <connections>
+                                                    <action selector="nextTapped:" destination="1xo-98-2F7" eventType="touchUpInside" id="Zsa-fL-ORb"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="44" id="w6e-eR-ss4"/>
+                                        </constraints>
+                                    </stackView>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Eqs-ek-aVD">
+                                        <rect key="frame" x="242" y="8" width="43" height="30"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="43" id="1Wj-Fy-3yR"/>
+                                            <constraint firstAttribute="height" constant="30" id="XeM-RC-WPt"/>
+                                        </constraints>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain" title="+"/>
+                                        <connections>
+                                            <action selector="addTapped:" destination="1xo-98-2F7" eventType="touchUpInside" id="8dU-Ne-emw"/>
+                                        </connections>
+                                    </button>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="isN-cr-9S0">
+                                        <rect key="frame" x="62" y="65" width="177" height="120"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstItem="Vap-TG-EG0" firstAttribute="leading" secondItem="cYc-81-tuc" secondAttribute="leading" constant="16" id="5lb-QE-kCI"/>
+                                    <constraint firstAttribute="trailing" secondItem="Vap-TG-EG0" secondAttribute="trailing" constant="16" id="Mdd-ev-tPz"/>
+                                    <constraint firstItem="isN-cr-9S0" firstAttribute="centerY" secondItem="cYc-81-tuc" secondAttribute="centerY" id="OLu-xe-d9H"/>
+                                    <constraint firstItem="isN-cr-9S0" firstAttribute="leading" secondItem="cYc-81-tuc" secondAttribute="leading" constant="62" id="VJs-FJ-hXU"/>
+                                    <constraint firstItem="isN-cr-9S0" firstAttribute="centerX" secondItem="cYc-81-tuc" secondAttribute="centerX" id="X1f-eU-ble"/>
+                                    <constraint firstAttribute="bottom" secondItem="Vap-TG-EG0" secondAttribute="bottom" constant="16" id="bz8-CI-iqv"/>
+                                    <constraint firstAttribute="trailing" secondItem="Eqs-ek-aVD" secondAttribute="trailing" constant="16" id="qb0-Rs-xit"/>
+                                    <constraint firstItem="Eqs-ek-aVD" firstAttribute="top" secondItem="cYc-81-tuc" secondAttribute="topMargin" id="sbl-KV-ttd"/>
+                                    <constraint firstItem="Vap-TG-EG0" firstAttribute="top" secondItem="isN-cr-9S0" secondAttribute="bottom" constant="5" id="xRx-kR-qEs"/>
+                                </constraints>
+                            </view>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="IMx-eF-N3A"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="cYc-81-tuc" firstAttribute="top" secondItem="IMx-eF-N3A" secondAttribute="top" id="Jz7-DU-uom"/>
+                            <constraint firstItem="IMx-eF-N3A" firstAttribute="bottom" secondItem="cYc-81-tuc" secondAttribute="bottom" constant="416" id="Nvv-cS-u7x"/>
+                            <constraint firstItem="cYc-81-tuc" firstAttribute="centerX" secondItem="GW3-kJ-1o3" secondAttribute="centerX" id="Utd-Em-xEC"/>
+                            <constraint firstItem="cYc-81-tuc" firstAttribute="leading" secondItem="IMx-eF-N3A" secondAttribute="leading" constant="46" id="sFz-0u-kLg"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="ToU-K4-oj7"/>
+                    <connections>
+                        <outlet property="cardLabel" destination="isN-cr-9S0" id="Rbb-B8-MNe"/>
+                        <outlet property="cardView" destination="cYc-81-tuc" id="A8b-g9-LsN"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="IJ2-Ck-hWd" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2738" y="363"/>
+            <point key="canvasLocation" x="2735.1145038167938" y="362.67605633802816"/>
         </scene>
         <!--Root View Controller-->
         <scene sceneID="D9d-BC-5fQ">
@@ -378,13 +449,13 @@
                     <navigationItem key="navigationItem" title="Learnix" id="gOA-a3-XWT">
                         <barButtonItem key="rightBarButtonItem" style="plain" systemItem="add" id="ne4-AN-du5">
                             <connections>
-                                <segue destination="MHz-xj-cge" kind="show" id="dhQ-ll-IUk"/>
+                                <segue destination="MHz-xj-cge" kind="show" identifier="addLesson" id="dhQ-ll-IUk"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="motivationLabel" destination="Ka6-JW-Jdf" id="kyC-wd-c5C"/>
-                        <segue destination="DIA-Re-1Et" kind="show" identifier="editLesson" id="wgW-lx-IzQ"/>
+                        <segue destination="DIA-Re-1Et" kind="show" identifier="editLesson" id="Ord-nn-bpo"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ibS-3F-Qvr" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

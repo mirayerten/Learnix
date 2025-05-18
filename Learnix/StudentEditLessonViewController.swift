@@ -22,6 +22,7 @@ class StudentEditLessonViewController: UIViewController, UIDocumentPickerDelegat
     @IBOutlet weak var saveButton: UIButton!
     
     var ders: Ders?
+    var editingDers: Ders?
     var selectedPdfLocalUrl: URL?
 
     override func viewDidLoad() {

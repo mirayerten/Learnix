@@ -29,7 +29,6 @@ class StudentAddLessonViewController: UIViewController, UIDocumentPickerDelegate
         super.viewDidLoad()
         pdfImageView.isHidden = true
         
-        
     }
 
     @IBAction func uploadPdfTapped(_ sender: UIButton) {
@@ -67,37 +66,37 @@ class StudentAddLessonViewController: UIViewController, UIDocumentPickerDelegate
 
     @IBAction func saveLessonTapped(_ sender: UIButton) {
         guard let lessonName = lessonNameTextField.text, !lessonName.isEmpty,
-              let teacherName = teacherNameTextField.text, !teacherName.isEmpty else {
-            showAlert(title: "Eksik bilgi", message: "Lütfen tüm alanları doldurunuz.")
-            return
-        }
+                      let teacherName = teacherNameTextField.text, !teacherName.isEmpty else {
+                    showAlert(title: "Eksik bilgi", message: "Lütfen tüm alanları doldurunuz.")
+                    return
+                }
 
-        if let pdfUrl = selectedPdfURL {
-            uploadPdfToFirebase(fileURL: pdfUrl, lessonName: lessonName, teacherName: teacherName)
-        } else {
-            saveLessonToFirestore(pdfUrl: nil, lessonName: lessonName, teacherName: teacherName)
-        }
-    }
-
-    func uploadPdfToFirebase(fileURL: URL, lessonName: String, teacherName: String) {
-        let storage = Storage.storage()
-        let storageRef = storage.reference()
-        let fileName = UUID().uuidString + ".pdf"
-        let pdfRef = storageRef.child("lesson_notes/\(fileName)")
-
-        let uploadTask = pdfRef.putFile(from: fileURL, metadata: nil) { metadata, error in
-            if let error = error {
-                self.showAlert(title: "Yükleme Hatası", message: error.localizedDescription)
-                return
-            }
-
-            pdfRef.downloadURL { url, error in
-                if let url = url {
-                    self.saveLessonToFirestore(pdfUrl: url.absoluteString, lessonName: lessonName, teacherName: teacherName)
+                if let pdfUrl = selectedPdfURL {
+                    uploadPdfToFirebase(fileURL: pdfUrl, lessonName: lessonName, teacherName: teacherName)
+                } else {
+                    saveLessonToFirestore(pdfUrl: nil, lessonName: lessonName, teacherName: teacherName)
                 }
             }
-        }
-    }
+
+            func uploadPdfToFirebase(fileURL: URL, lessonName: String, teacherName: String) {
+                let storage = Storage.storage()
+                let storageRef = storage.reference()
+                let fileName = UUID().uuidString + ".pdf"
+                let pdfRef = storageRef.child("lesson_notes/\(fileName)")
+
+                let uploadTask = pdfRef.putFile(from: fileURL, metadata: nil) { metadata, error in
+                    if let error = error {
+                        self.showAlert(title: "Yükleme Hatası", message: error.localizedDescription)
+                        return
+                    }
+
+                    pdfRef.downloadURL { url, error in
+                        if let url = url {
+                            self.saveLessonToFirestore(pdfUrl: url.absoluteString, lessonName: lessonName, teacherName: teacherName)
+                        }
+                    }
+                }
+            }
 
     func saveLessonToFirestore(pdfUrl: String?, lessonName: String, teacherName: String) {
         let db = Firestore.firestore()
