@@ -8,6 +8,7 @@
 import UIKit
 import Firebase
 import FirebaseAuth
+import UserNotifications
 
 protocol StudentAddTaskViewControllerDelegate: AnyObject {
     func didAddTask()
@@ -21,6 +22,9 @@ class StudentAddTaskViewController: UIViewController, UITextFieldDelegate, UITex
     @IBOutlet weak var descriptionTextView: UITextView!
     @IBOutlet weak var datePicker: UIDatePicker!
     
+    var isEditingTask = false
+    var taskToEdit: Gorev?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         descriptionTextView.layer.borderColor = UIColor.systemGray4.cgColor
@@ -33,6 +37,14 @@ class StudentAddTaskViewController: UIViewController, UITextFieldDelegate, UITex
 
                 // TextView için done butonlu toolbar ekle
                 addDoneButtonOnKeyboard()
+        
+        datePicker.minimumDate = Date() // geçmiş tarih seçmesin
+        
+        if isEditingTask, let task = taskToEdit {
+                nameTextField.text = task.name
+                descriptionTextView.text = task.description
+                datePicker.date = task.dueDate
+            }
     }
     
     // TextView için toolbar ve tamam butonu
@@ -70,21 +82,60 @@ class StudentAddTaskViewController: UIViewController, UITextFieldDelegate, UITex
             "name": name,
             "description": description,
             "dueDate": Timestamp(date: dueDate),
-            "isCompleted": false
+            "status": "Yapılacak"
         ]
 
-        Firestore.firestore()
-            .collection("Users")
-            .document(userID)
-            .collection("Tasks")
-            .addDocument(data: taskData) { error in
-                if let error = error {
-                    self.showAlert("Görev kaydedilemedi: \(error.localizedDescription)")
-                } else {
-                    self.delegate?.didAddTask() // 🔥 Delegate tetikleniyor
-                    self.navigationController?.popViewController(animated: true)
+        let db = Firestore.firestore()
+            if isEditingTask, let taskID = taskToEdit?.id {
+                // Güncelle
+                db.collection("Users").document(userID).collection("Tasks").document(taskID).updateData(taskData) { error in
+                    if let error = error {
+                        self.showAlert("Görev güncellenemedi: \(error.localizedDescription)")
+                    } else {
+                        self.delegate?.didAddTask()
+                        self.navigationController?.popViewController(animated: true)
+                    }
+                }
+            } else {
+                // Yeni ekle
+                db.collection("Users").document(userID).collection("Tasks").addDocument(data: taskData) { error in
+                    if let error = error {
+                        self.showAlert("Görev kaydedilemedi: \(error.localizedDescription)")
+                    } else {
+                        self.delegate?.didAddTask()
+                        self.navigationController?.popViewController(animated: true)
+                    }
                 }
             }
+        }
+    
+    func scheduleNotification(taskName: String, dueDate: Date) {
+        let content = UNMutableNotificationContent()
+        content.title = "Görev Hatırlatması"
+        content.body = "\(taskName) göreviniz yarın teslim zamanı."
+        content.sound = .default
+
+        guard let notificationDate = Calendar.current.date(byAdding: .day, value: -1, to: dueDate) else {
+            return
+        }
+
+        if notificationDate < Date() {
+            // Bildirim tarihi geçmiş, planlama yapma
+            return
+        }
+
+        let triggerDateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: notificationDate)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDateComponents, repeats: false)
+
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Bildirim planlanamadı: \(error.localizedDescription)")
+            } else {
+                print("Bildirim planlandı.")
+            }
+        }
     }
 
     func showAlert(_ message: String) {

@@ -9,15 +9,36 @@ import UIKit
 import Firebase
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
 
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        
+        // Bildirim izni iste
+                UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+                    if granted {
+                        print("Bildirim izni verildi.")
+                    } else {
+                        print("Bildirim izni reddedildi.")
+                    }
+                }
+        
+        // Bildirimlerin uygulama ön plandayken gösterilmesini sağla
+                UNUserNotificationCenter.current().delegate = self
+
+
         // Override point for customization after application launch.
         FirebaseApp.configure()
         return true
     }
+    
+    // Uygulama ön plandayken bildirim göster (opsiyonel, yoksa bildirim görünmez)
+        func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                    willPresent notification: UNNotification,
+                                    withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+            completionHandler([.banner, .sound])
+        }
 
     // MARK: UISceneSession Lifecycle
 

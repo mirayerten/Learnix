@@ -628,12 +628,11 @@
                     <toolbarItems/>
                     <navigationItem key="navigationItem" id="XV7-GD-lRg">
                         <nil key="title"/>
-                        <segmentedControl key="titleView" opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" id="WdK-gn-XD7">
+                        <segmentedControl key="titleView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" id="WdK-gn-XD7">
                             <rect key="frame" x="56" y="5.6666666666666679" width="281" height="33"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <segments>
                                 <segment title="Yapılacak"/>
-                                <segment title="Yapılıyor"/>
                                 <segment title="Tamamlandı"/>
                             </segments>
                             <connections>
@@ -651,6 +650,7 @@
                     <connections>
                         <outlet property="segmentedControl" destination="WdK-gn-XD7" id="Oog-9s-JJI"/>
                         <outlet property="tableView" destination="dD7-5x-uLl" id="PZP-0w-yZw"/>
+                        <segue destination="J5q-Os-j0P" kind="show" identifier="editTask" id="rpJ-Sc-beR"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="WlT-g0-H8v" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -776,6 +776,7 @@
     </scenes>
     <inferredMetricsTieBreakers>
         <segue reference="eg5-Nu-4F8"/>
+        <segue reference="rpJ-Sc-beR"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="book" catalog="system" width="128" height="99"/>
