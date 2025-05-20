@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 import FirebaseStorage
 import FirebaseFirestore
 import MobileCoreServices
@@ -60,14 +61,14 @@ class StudentEditLessonViewController: UIViewController, UIDocumentPickerDelegat
         }
         if let localPdfUrl = selectedPdfLocalUrl {
             uploadPdfToStorage(localFileUrl: localPdfUrl) { [weak self] result in switch result {
-                case .success(let downloadUrl): self?.updateFirestoreData(lessonName: lessonName, teacherName: teacherName, pdfUrl: downloadUrl.absoluteString)
+                case .success(let downloadUrl): self?.updateFirestoreData(lessonName: lessonName, teacherName: teacherName, pdfURL: downloadUrl.absoluteString)
                 case .failure(let error): DispatchQueue.main.async {
                     self?.showAlert(title: "Hata", message: "PDF yükleme başarısız: \(error.localizedDescription)")
                 }
             }
             }
         } else {
-            updateFirestoreData(lessonName: lessonName, teacherName: teacherName, pdfUrl: ders.pdfURL)
+            updateFirestoreData(lessonName: lessonName, teacherName: teacherName, pdfURL: ders.pdfURL)
         }
     }
             
@@ -94,14 +95,17 @@ class StudentEditLessonViewController: UIViewController, UIDocumentPickerDelegat
         }
     }
 
-    private func updateFirestoreData(lessonName: String, teacherName: String, pdfUrl: String?) {
-        guard let ders = ders else { return }
-            
+    private func updateFirestoreData(lessonName: String, teacherName: String, pdfURL: String?) {
+        guard let ders = ders,
+              let uid = Auth.auth().currentUser?.uid else { return }
+
         let db = Firestore.firestore()
-        db.collection("Dersler").document(ders.id).updateData([
+        let dersRef = db.collection("Users").document(uid).collection("Lessons").document(ders.id)
+
+        dersRef.updateData([
             "lessonName": lessonName,
             "teacherName": teacherName,
-            "pdfUrl": pdfUrl as Any
+            "pdfURL": pdfURL as Any
         ]) { [weak self] error in
             DispatchQueue.main.async {
                 if let error = error {

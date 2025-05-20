@@ -46,7 +46,27 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
     }
+    
+    func switchToLogin() {
+        guard let window = self.window else { return }
 
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let loginVC = storyboard.instantiateViewController(withIdentifier: "LoginViewController")
+            let navigationController = UINavigationController(rootViewController: loginVC)
+
+            // Geçiş animasyonu tanımı
+            let transition = CATransition()
+        transition.type = .push
+        transition.duration = 0.7
+            transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+
+            // Mevcut pencereye animasyon ekle
+            window.layer.add(transition, forKey: kCATransition)
+
+            // Root VC'yi güncelle (pencereyi yeniden oluşturma!)
+            window.rootViewController = navigationController
+            window.makeKeyAndVisible()
+    }
 
 }
 

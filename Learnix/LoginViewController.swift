@@ -33,21 +33,45 @@ class LoginViewController: UIViewController {
     
     @IBAction func loginButton(_ sender: UIButton) {
         guard let email = emailTextField.text, !email.isEmpty,
-              let password = passwordTextField.text, !password.isEmpty else {
-            showAlert(title: "Eksik Bilgi", message: "Lütfen e-posta ve şifre girin.")
-            return
-        }
-        Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
-            if let error = error {
-                self.showAlert(title: "Giriş Hatası", message: error.localizedDescription)
-            } else {
-                self.performSegue(withIdentifier: "loginToHome", sender: nil)
-            
+                  let password = passwordTextField.text, !password.isEmpty else {
+                showAlert(title: "Eksik Bilgi", message: "Lütfen e-posta ve şifre girin.")
                 return
             }
-            
+
+            Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
+                if let error = error {
+                    self.showAlert(title: "Giriş Hatası", message: error.localizedDescription)
+                    return
+                }
+
+                // Giriş başarılıysa kullanıcı rolünü Firestore'dan al
+                let db = Firestore.firestore()
+                db.collection("Users").whereField("email", isEqualTo: email).getDocuments { snapshot, error in
+                    if let error = error {
+                        self.showAlert(title: "Hata", message: error.localizedDescription)
+                        return
+                    }
+
+                    guard let document = snapshot?.documents.first else {
+                        self.showAlert(title: "Hata", message: "Kullanıcı bilgisi bulunamadı.")
+                        return
+                    }
+
+                    let data = document.data()
+                    let role = data["role"] as? String ?? ""
+
+                    DispatchQueue.main.async {
+                        if role == "student" {
+                            self.performSegue(withIdentifier: "loginToStudentHome", sender: nil)
+                        } else if role == "teacher" {
+                            self.performSegue(withIdentifier: "loginToTeacherHome", sender: nil)
+                        } else {
+                            self.showAlert(title: "Rol Hatası", message: "Kullanıcı rolü tanımlı değil.")
+                        }
+                    }
+                }
+            }
         }
-    }
     
     @IBAction func registerTappedButton(_ sender: UIButton) {
         performSegue(withIdentifier: "toRegister", sender: self)
@@ -58,5 +82,6 @@ class LoginViewController: UIViewController {
             alert.addAction(UIAlertAction(title: "Tamam", style: .default))
             present(alert, animated: true)
         }
+    
 }
 

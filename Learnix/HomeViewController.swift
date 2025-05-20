@@ -7,6 +7,7 @@
 
 import UIKit
 import Firebase
+import FirebaseAuth
 import FirebaseFirestore
 import SafariServices
 
@@ -29,12 +30,12 @@ class HomeViewController: UITableViewController {
         tableView.delegate = self
         tableView.dataSource = self
         showMotivation()
-        loadDersler()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        fetchDersler()
+        loadDersler()
+      //  fetchDersler()
     }
 
     private func showMotivation() {
@@ -57,32 +58,35 @@ class HomeViewController: UITableViewController {
     }
 
     private func loadDersler() {
-        let db = Firestore.firestore()
-        db.collection("Dersler").getDocuments { [weak self] snapshot, error in
-            guard let self = self else { return }
-            
-            if let error = error {
-                DispatchQueue.main.async {
-                    self.showAlert(title: "Hata", message: error.localizedDescription)
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+
+            let db = Firestore.firestore()
+            db.collection("Users").document(uid).collection("Lessons").getDocuments { [weak self] snapshot, error in
+                guard let self = self else { return }
+
+                if let error = error {
+                    DispatchQueue.main.async {
+                        self.showAlert(title: "Hata", message: error.localizedDescription)
+                    }
+                    return
                 }
-                return
-            }
-                
-            self.dersler = snapshot?.documents.compactMap { doc in
-                let id = doc.documentID
-                let lessonName = doc["lessonName"] as? String ?? ""
-                let teacherName = doc["teacherName"] as? String ?? ""
-                let pdfURL = doc["pdfUrl"] as? String
-                return Ders(id: id, lessonName: lessonName, teacherName: teacherName, pdfURL: pdfURL)
-            } ?? []
-            
-            DispatchQueue.main.async {
-                self.tableView.reloadData()
+
+                self.dersler = snapshot?.documents.compactMap { doc in
+                    Ders(
+                        id: doc.documentID,
+                        lessonName: doc["lessonName"] as? String ?? "",
+                        teacherName: doc["teacherName"] as? String ?? "",
+                        pdfURL: doc["pdfURL"] as? String
+                    )
+                } ?? []
+
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
             }
         }
-    }
     
-    private func fetchDersler() {
+  /*  private func fetchDersler() {
         let db = Firestore.firestore()
         db.collection("Dersler").getDocuments { [weak self] snapshot, error in
             guard let self = self else { return }
@@ -103,7 +107,7 @@ class HomeViewController: UITableViewController {
                 self.tableView.reloadData()
             }
         }
-    }
+    } */
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return dersler.count
@@ -122,6 +126,14 @@ class HomeViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedDers = dersler[indexPath.row]
+        
+     /*   guard let urlString = selectedDers.pdfURL,
+                     !urlString.isEmpty,
+                     let url = URL(string: urlString),
+                     url.scheme?.contains("http") == true else {
+                   showAlert(title: "Hata", message: "PDF bağlantısı geçerli değil.")
+                   return
+               } */
 
         guard let urlString = selectedDers.pdfURL, !urlString.isEmpty else {
             showAlert(title: "Dosya Yok", message: "Bu derse ait bir PDF dosyası bulunamadı.")
@@ -151,8 +163,10 @@ class HomeViewController: UITableViewController {
         let deleteAction = UIContextualAction(style: .destructive, title: "Sil") { [weak self] _, _, completionHandler in
             guard let self = self else { return }
             
+            guard let uid = Auth.auth().currentUser?.uid else { return }
+            
             let db = Firestore.firestore()
-            db.collection("Dersler").document(selectedDers.id).delete { error in
+            db.collection("Users").document(uid).collection("Lessons").document(selectedDers.id).delete { error in
                 if error == nil {
                     self.dersler.remove(at: indexPath.row)
                     DispatchQueue.main.async {

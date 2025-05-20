@@ -7,6 +7,7 @@
 
 import UIKit
 import Firebase
+import FirebaseAuth
 import FirebaseFirestore
 import FirebaseStorage
 import UniformTypeIdentifiers
@@ -74,7 +75,7 @@ class StudentAddLessonViewController: UIViewController, UIDocumentPickerDelegate
                 if let pdfUrl = selectedPdfURL {
                     uploadPdfToFirebase(fileURL: pdfUrl, lessonName: lessonName, teacherName: teacherName)
                 } else {
-                    saveLessonToFirestore(pdfUrl: nil, lessonName: lessonName, teacherName: teacherName)
+                    saveLessonToFirestore(pdfURL: nil, lessonName: lessonName, teacherName: teacherName)
                 }
             }
 
@@ -84,7 +85,7 @@ class StudentAddLessonViewController: UIViewController, UIDocumentPickerDelegate
                 let fileName = UUID().uuidString + ".pdf"
                 let pdfRef = storageRef.child("lesson_notes/\(fileName)")
 
-                let uploadTask = pdfRef.putFile(from: fileURL, metadata: nil) { metadata, error in
+                pdfRef.putFile(from: fileURL, metadata: nil) { metadata, error in
                     if let error = error {
                         self.showAlert(title: "Yükleme Hatası", message: error.localizedDescription)
                         return
@@ -92,31 +93,34 @@ class StudentAddLessonViewController: UIViewController, UIDocumentPickerDelegate
 
                     pdfRef.downloadURL { url, error in
                         if let url = url {
-                            self.saveLessonToFirestore(pdfUrl: url.absoluteString, lessonName: lessonName, teacherName: teacherName)
+                            self.saveLessonToFirestore(pdfURL: url.absoluteString, lessonName: lessonName, teacherName: teacherName)
                         }
                     }
                 }
             }
 
-    func saveLessonToFirestore(pdfUrl: String?, lessonName: String, teacherName: String) {
+    func saveLessonToFirestore(pdfURL: String?, lessonName: String, teacherName: String) {
         let db = Firestore.firestore()
-        var data: [String: Any] = [
-            "lessonName": lessonName,
-            "teacherName": teacherName
-        ]
-        if let url = pdfUrl {
-            data["pdfUrl"] = url
-        }
+            guard let uid = Auth.auth().currentUser?.uid else {
+                showAlert(title: "Hata", message: "Kullanıcı doğrulanamadı.")
+                return
+            }
 
-        db.collection("Dersler").addDocument(data: data) { error in
-            if let error = error {
-                self.showAlert(title: "Kayıt Hatası", message: error.localizedDescription)
-            } else {
-                self.showAlert(title: "Başarılı", message: "Ders kaydedildi.") {
-                    self.navigationController?.popViewController(animated: true)
+            let newLessonData: [String: Any] = [
+                "lessonName": lessonName,
+                "teacherName": teacherName,
+                "pdfURL": pdfURL as Any
+            ]
+
+            db.collection("Users").document(uid).collection("Lessons").addDocument(data: newLessonData) { [weak self] error in
+                DispatchQueue.main.async {
+                    if let error = error {
+                        self?.showAlert(title: "Hata", message: "Ders kaydedilemedi: \(error.localizedDescription)")
+                    } else {
+                        self?.navigationController?.popViewController(animated: true)
+                    }
                 }
             }
-        }
     }
 
     func showAlert(title: String, message: String, completion: (() -> Void)? = nil) {
