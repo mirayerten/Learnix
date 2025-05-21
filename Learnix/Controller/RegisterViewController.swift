@@ -21,17 +21,16 @@ class RegisterViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
     }
     
     @IBAction func registerButton(_ sender: UIButton) {
         guard let email = registerEmailTextField.text, !email.isEmpty,
-                      let password = registerPasswordTextField.text, !password.isEmpty else {
+              let password = registerPasswordTextField.text, !password.isEmpty else {
             showAlert(title: "Eksik Bilgi", message: "Lütfen e-posta ve şifre giriniz.")
-                    return
-                }
-        // Rol belirleme (0: öğrenci, 1: öğretmen)
-                let selectedRole = roleSegmentedControl.selectedSegmentIndex == 0 ? "student" : "teacher"
+            return
+        }
+        
+        let selectedRole = roleSegmentedControl.selectedSegmentIndex == 0 ? "student" : "teacher" // rolü belirleme
 
         Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
             if let error = error {
@@ -41,7 +40,7 @@ class RegisterViewController: UIViewController {
             
             guard let uid = authResult?.user.uid else { return }
             
-            // Firestore'a rol bilgisini kaydet
+            //veritabanına rolü kaydediyor
             self.db.collection("Users").document(uid).setData([
                 "email": email,
                 "role": selectedRole
@@ -49,7 +48,6 @@ class RegisterViewController: UIViewController {
                 if let error = error {
                     self.showAlert(title: "Firestore Hatası", message: error.localizedDescription)
                 } else {
-                    // Kayıt başarılı, segue ile geç
                     self.performSegue(withIdentifier: "registerToProfile", sender: self)
                 }
             }

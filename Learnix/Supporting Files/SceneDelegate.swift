@@ -13,10 +13,22 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
-        // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
-        // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        guard let _ = (scene as? UIWindowScene) else { return }
+        if let windowScene = scene as? UIWindowScene {
+            let window = UIWindow(windowScene: windowScene)
+            
+            // Kullanıcının tema tercihini uygula
+            let savedTheme = UserDefaults.standard.integer(forKey: "appTheme")
+            window.overrideUserInterfaceStyle = UIUserInterfaceStyle(rawValue: savedTheme) ?? .unspecified
+            
+            // Root view controller'ı ayarla
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let loginVC = storyboard.instantiateViewController(withIdentifier: "LoginViewController")
+            let navigationController = UINavigationController(rootViewController: loginVC)
+            window.rootViewController = navigationController
+            
+            self.window = window
+            window.makeKeyAndVisible()
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -49,23 +61,23 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     func switchToLogin() {
         guard let window = self.window else { return }
-
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            let loginVC = storyboard.instantiateViewController(withIdentifier: "LoginViewController")
-            let navigationController = UINavigationController(rootViewController: loginVC)
-
-            // Geçiş animasyonu tanımı
-            let transition = CATransition()
+        
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let loginVC = storyboard.instantiateViewController(withIdentifier: "LoginViewController")
+        let navigationController = UINavigationController(rootViewController: loginVC)
+        
+        // Geçiş animasyonu tanımı
+        let transition = CATransition()
         transition.type = .push
         transition.duration = 0.7
-            transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-
-            // Mevcut pencereye animasyon ekle
-            window.layer.add(transition, forKey: kCATransition)
-
-            // Root VC'yi güncelle (pencereyi yeniden oluşturma!)
-            window.rootViewController = navigationController
-            window.makeKeyAndVisible()
+        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        
+        // Mevcut pencereye animasyon ekle
+        window.layer.add(transition, forKey: kCATransition)
+        
+        // Root VC'yi güncelle (pencereyi yeniden oluşturma!)
+        window.rootViewController = navigationController
+        window.makeKeyAndVisible()
     }
 
 }
