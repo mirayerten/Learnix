@@ -40,39 +40,6 @@ class TeacherEditLessonViewController: UIViewController, UIDocumentPickerDelegat
         }
     }
     
-    @IBAction func selectPDFTapped(_ sender: UIButton) {
-        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.pdf])
-        picker.delegate = self
-        picker.allowsMultipleSelection = false
-        present(picker, animated: true)
-    }
-    
-    @IBAction func saveButtonTapped(_ sender: UIButton) {
-        guard let lessonName = lessonNameTextField.text, !lessonName.isEmpty,
-                 let teacherName = teacherNameTextField.text, !teacherName.isEmpty else {
-               showAlert(title: "Eksik bilgi", message: "Lütfen tüm alanları doldurunuz.")
-               return
-           }
-
-           // Eğer düzenleme modundaysak ve yeni PDF seçilmemişse, var olan URL'yi kullan
-           if let existingLesson = lesson, selectedPDFURL == nil {
-               saveLessonToFirestore(
-                   pdfURL: existingLesson.pdfURL ?? "",
-                   lessonName: lessonName,
-                   teacherName: teacherName
-               )
-               return
-           }
-
-           // Yeni kayıt ya da yeni PDF seçilmişse upload et
-           guard let pdfUrl = selectedPDFURL else {
-               showAlert(title: "Eksik bilgi", message: "Lütfen PDF dosyası seçiniz.")
-               return
-           }
-
-           uploadPdfToFirebase(fileURL: pdfUrl, lessonName: lessonName, teacherName: teacherName)
-       }
-    
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         guard let selectedUrl = urls.first else { return }
         
@@ -124,14 +91,14 @@ class TeacherEditLessonViewController: UIViewController, UIDocumentPickerDelegat
             showAlert(title: "Hata", message: "Kullanıcı doğrulanamadı.")
             return
         }
-
+        
         let data: [String: Any] = [
             "lessonName": lessonName,
             "teacherName": teacherName,
             "teacherEmail": email,
             "pdfURL": pdfURL
         ]
-
+        
         if let lessonId = lesson?.id {
             // Güncelleme işlemi
             db.collection("TeacherLessons").document(lessonId).setData(data) { [weak self] error in
@@ -155,6 +122,39 @@ class TeacherEditLessonViewController: UIViewController, UIDocumentPickerDelegat
                 }
             }
         }
+    }
+    
+    @IBAction func selectPDFTapped(_ sender: UIButton) {
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.pdf])
+        picker.delegate = self
+        picker.allowsMultipleSelection = false
+        present(picker, animated: true)
+    }
+    
+    @IBAction func saveButtonTapped(_ sender: UIButton) {
+        guard let lessonName = lessonNameTextField.text, !lessonName.isEmpty,
+              let teacherName = teacherNameTextField.text, !teacherName.isEmpty else {
+            showAlert(title: "Eksik bilgi", message: "Lütfen tüm alanları doldurunuz.")
+            return
+        }
+        
+        // Eğer düzenleme modundaysak ve yeni PDF seçilmemişse, var olan URL'yi kullan
+        if let existingLesson = lesson, selectedPDFURL == nil {
+            saveLessonToFirestore(
+                pdfURL: existingLesson.pdfURL ?? "",
+                lessonName: lessonName,
+                teacherName: teacherName
+            )
+            return
+        }
+        
+        // Yeni kayıt ya da yeni PDF seçilmişse upload et
+        guard let pdfUrl = selectedPDFURL else {
+            showAlert(title: "Eksik bilgi", message: "Lütfen PDF dosyası seçiniz.")
+            return
+        }
+        
+        uploadPdfToFirebase(fileURL: pdfUrl, lessonName: lessonName, teacherName: teacherName)
     }
     
     private func showAlert(title: String, message: String, completion: (() -> Void)? = nil) {

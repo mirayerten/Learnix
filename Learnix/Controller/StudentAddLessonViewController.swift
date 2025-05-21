@@ -48,32 +48,6 @@ class StudentAddLessonViewController: UIViewController, UIDocumentPickerDelegate
         }
     }
     
-    
-    @IBAction func uploadPdfTapped(_ sender: UIButton) {
-        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.pdf])
-        picker.delegate = self
-        picker.allowsMultipleSelection = false
-        present(picker, animated: true)
-    }
-    
-    
-    
-    @IBAction func saveLessonTapped(_ sender: UIButton) {
-        guard let lessonName = lessonNameTextField.text, !lessonName.isEmpty,
-              let teacherName = teacherNameTextField.text, !teacherName.isEmpty else {
-            showAlert(title: "Eksik bilgi", message: "Lütfen tüm alanları doldurunuz.")
-            return
-        }
-        
-        if let pdfUrl = selectedPdfURL {
-            uploadPdfToFirebase(fileURL: pdfUrl, lessonName: lessonName, teacherName: teacherName)
-        } else if let ders = ders {
-            updateLessonInFirestore(pdfURL: ders.pdfURL, lessonName: lessonName, teacherName: teacherName)
-        } else {
-            saveLessonToFirestore(pdfURL: nil, lessonName: lessonName, teacherName: teacherName)
-        }
-    }
-
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         guard let selectedUrl = urls.first,
               selectedUrl.startAccessingSecurityScopedResource() else {
@@ -98,7 +72,7 @@ class StudentAddLessonViewController: UIViewController, UIDocumentPickerDelegate
             print("PDF kopyalanamadı: \(error.localizedDescription)")
         }
     }
-
+    
     func uploadPdfToFirebase(fileURL: URL, lessonName: String, teacherName: String) {
         let storageRef = Storage.storage().reference()
         let fileName = UUID().uuidString + ".pdf"
@@ -167,7 +141,35 @@ class StudentAddLessonViewController: UIViewController, UIDocumentPickerDelegate
             }
         }
     }
-
+    
+    @IBAction func uploadPdfTapped(_ sender: UIButton) {
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.pdf])
+        picker.delegate = self
+        picker.allowsMultipleSelection = false
+        present(picker, animated: true)
+    }
+    
+    @IBAction func saveLessonTapped(_ sender: UIButton) {
+        guard let lessonName = lessonNameTextField.text, !lessonName.isEmpty,
+              let teacherName = teacherNameTextField.text, !teacherName.isEmpty else {
+            showAlert(title: "Eksik bilgi", message: "Lütfen tüm alanları doldurunuz.")
+            return
+        }
+        
+        if ders == nil && selectedPdfURL == nil {
+            showAlert(title: "PDF Eksik", message: "Lütfen PDF dosyası ekleyiniz.")
+            return
+        }
+        
+        if let pdfUrl = selectedPdfURL {
+            uploadPdfToFirebase(fileURL: pdfUrl, lessonName: lessonName, teacherName: teacherName)
+        } else if let ders = ders {
+            updateLessonInFirestore(pdfURL: ders.pdfURL, lessonName: lessonName, teacherName: teacherName)
+        } else {
+            saveLessonToFirestore(pdfURL: nil, lessonName: lessonName, teacherName: teacherName)
+        }
+    }
+    
     func showAlert(title: String, message: String, completion: (() -> Void)? = nil) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Tamam", style: .default) { _ in

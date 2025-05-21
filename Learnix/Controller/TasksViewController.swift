@@ -25,87 +25,6 @@ class TasksViewController: UIViewController, UITableViewDelegate, UITableViewDat
         loadGorevler()
     }
     
-    @IBAction func addTaskTapped(_ sender: UIBarButtonItem) {
-        performSegue(withIdentifier: "addTask", sender: self)
-    }
-    
-    @IBAction func segmentChanged(_ sender: UISegmentedControl) {
-        filterTasks()
-    }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard let destinationVC = segue.destination as? StudentAddTaskViewController else { return }
-        
-        destinationVC.delegate = self
-        
-        if segue.identifier == "addTask" {
-            destinationVC.isEditingTask = false
-        } else if segue.identifier == "editTask", let task = sender as? Gorev {
-            destinationVC.isEditingTask = true
-            destinationVC.taskToEdit = task
-        }
-    }
-    
-    func didAddTask() {
-        loadGorevler()
-    }
-    
-    private func loadGorevler() {
-        guard let userID = Auth.auth().currentUser?.uid else {
-            showError("Kullanıcı bulunamadı.")
-            return
-        }
-        
-        let db = Firestore.firestore()
-        db.collection("Users").document(userID).collection("Tasks").getDocuments { snapshot, error in
-            if let error = error {
-                self.showError(error.localizedDescription)
-                return
-            }
-            
-            self.tumGorevler = snapshot?.documents.compactMap { doc in
-                let data = doc.data()
-                guard let name = data["name"] as? String,
-                      let description = data["description"] as? String,
-                      let dueTimestamp = data["dueDate"] as? Timestamp,
-                      let status = data["status"] as? String else {
-                    return nil
-                }
-                
-                return Gorev(
-                    id: doc.documentID,
-                    name: name,
-                    description: description,
-                    dueDate: dueTimestamp.dateValue(),
-                    status: status
-                )
-            } ?? []
-            
-            self.filterTasks()
-        }
-    }
-    
-    private func filterTasks() {
-        switch segmentedControl.selectedSegmentIndex {
-        case 0:
-            filtreliGorevler = tumGorevler.filter { $0.status == "Yapılacak" }
-        case 1:
-            filtreliGorevler = tumGorevler.filter { $0.status == "Tamamlandı" }
-        default:
-            filtreliGorevler = tumGorevler
-        }
-        
-        DispatchQueue.main.async {
-            self.tableView.reloadData()
-        }
-    }
-    
-    private func showError(_ message: String) {
-        let alert = UIAlertController(title: "Hata", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Tamam", style: .default))
-        present(alert, animated: true)
-    }
-
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return filtreliGorevler.count
     }
@@ -162,6 +81,74 @@ class TasksViewController: UIViewController, UITableViewDelegate, UITableViewDat
         return UISwipeActionsConfiguration(actions: actions)
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        guard let destinationVC = segue.destination as? StudentAddTaskViewController else { return }
+        
+        destinationVC.delegate = self
+        
+        if segue.identifier == "addTask" {
+            destinationVC.isEditingTask = false
+        } else if segue.identifier == "editTask", let task = sender as? Gorev {
+            destinationVC.isEditingTask = true
+            destinationVC.taskToEdit = task
+        }
+    }
+    
+    func didAddTask() {
+        loadGorevler()
+    }
+    
+    private func loadGorevler() {
+        guard let userID = Auth.auth().currentUser?.uid else {
+            showError("Kullanıcı bulunamadı.")
+            return
+        }
+        
+        let db = Firestore.firestore()
+        db.collection("Users").document(userID).collection("Tasks").getDocuments { snapshot, error in
+            if let error = error {
+                self.showError(error.localizedDescription)
+                return
+            }
+            
+            self.tumGorevler = snapshot?.documents.compactMap { doc in
+                let data = doc.data()
+                guard let name = data["name"] as? String,
+                      let description = data["description"] as? String,
+                      let dueTimestamp = data["dueDate"] as? Timestamp,
+                      let status = data["status"] as? String else {
+                    return nil
+                }
+                
+                return Gorev(
+                    id: doc.documentID,
+                    name: name,
+                    description: description,
+                    dueDate: dueTimestamp.dateValue(),
+                    status: status
+                )
+            } ?? []
+            self.filterTasks()
+        }
+    }
+    
+    private func filterTasks() {
+        switch segmentedControl.selectedSegmentIndex {
+        case 0:
+            filtreliGorevler = tumGorevler.filter { $0.status == "Yapılacak" }
+        case 1:
+            filtreliGorevler = tumGorevler.filter { $0.status == "Tamamlandı" }
+        default:
+            filtreliGorevler = tumGorevler
+        }
+        
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
+    }
+    
+    
+    
     private func updateTaskStatus(taskID: String, newStatus: String) {
         guard let userID = Auth.auth().currentUser?.uid else { return }
         
@@ -184,5 +171,19 @@ class TasksViewController: UIViewController, UITableViewDelegate, UITableViewDat
             }
             self.loadGorevler()
         }
+    }
+    
+    @IBAction func addTaskTapped(_ sender: UIBarButtonItem) {
+        performSegue(withIdentifier: "addTask", sender: self)
+    }
+    
+    @IBAction func segmentChanged(_ sender: UISegmentedControl) {
+        filterTasks()
+    }
+    
+    private func showError(_ message: String) {
+        let alert = UIAlertController(title: "Hata", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Tamam", style: .default))
+        present(alert, animated: true)
     }
 }

@@ -16,12 +16,12 @@ protocol StudentAddTaskViewControllerDelegate: AnyObject {
 
 class StudentAddTaskViewController: UIViewController, UITextFieldDelegate, UITextViewDelegate {
     
-    weak var delegate: StudentAddTaskViewControllerDelegate?
-    
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var descriptionTextView: UITextView!
     @IBOutlet weak var datePicker: UIDatePicker!
     
+    let db = Firestore.firestore()
+    weak var delegate: StudentAddTaskViewControllerDelegate?
     var isEditingTask = false
     var taskToEdit: Gorev?
     
@@ -31,7 +31,7 @@ class StudentAddTaskViewController: UIViewController, UITextFieldDelegate, UITex
         configureTextInputs()
         loadTaskIfEditing()
     }
-
+    
     private func configureUI() {
         descriptionTextView.layer.borderColor = UIColor.systemGray4.cgColor
         descriptionTextView.layer.borderWidth = 1
@@ -47,6 +47,22 @@ class StudentAddTaskViewController: UIViewController, UITextFieldDelegate, UITex
         addDoneButtonToKeyboard()
     }
     
+    private func addDoneButtonToKeyboard() {
+        let toolbar = UIToolbar()
+        toolbar.sizeToFit()
+        
+        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let doneButton = UIBarButtonItem(title: "Tamam", style: .done, target: self, action: #selector(dismissKeyboard))
+        toolbar.items = [flexSpace, doneButton]
+        
+        nameTextField.inputAccessoryView = toolbar
+        descriptionTextView.inputAccessoryView = toolbar
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
     private func loadTaskIfEditing() {
         if isEditingTask, let task = taskToEdit {
             nameTextField.text = task.name
@@ -55,10 +71,6 @@ class StudentAddTaskViewController: UIViewController, UITextFieldDelegate, UITex
         }
     }
     
-    @IBAction func saveButtonTapped(_ sender: UIButton) {
-        saveTask()
-    }
-
     private func saveTask() {
         guard let userID = Auth.auth().currentUser?.uid else { return }
         
@@ -76,22 +88,17 @@ class StudentAddTaskViewController: UIViewController, UITextFieldDelegate, UITex
             "status": "Yapılacak"
         ]
         
-        let db = Firestore.firestore()
         let userTasksRef = db.collection("Users").document(userID).collection("Tasks")
         
         if isEditingTask, let taskID = taskToEdit?.id {
-            // Görev güncelleme
             userTasksRef.document(taskID).updateData(taskData) { error in
                 self.handleFirestoreResponse(error, isEdit: true)
             }
         } else {
-            // Yeni görev ekleme
             userTasksRef.addDocument(data: taskData) { error in
                 self.handleFirestoreResponse(error, isEdit: false)
             }
         }
-        
-        // Opsiyonel: Bildirim planla
         scheduleNotification(taskName: name, dueDate: dueDate)
     }
     
@@ -104,7 +111,7 @@ class StudentAddTaskViewController: UIViewController, UITextFieldDelegate, UITex
             navigationController?.popViewController(animated: true)
         }
     }
-
+    
     private func scheduleNotification(taskName: String, dueDate: Date) {
         guard let notificationDate = Calendar.current.date(byAdding: .day, value: -1, to: dueDate),
               notificationDate > Date() else {
@@ -113,7 +120,7 @@ class StudentAddTaskViewController: UIViewController, UITextFieldDelegate, UITex
         
         let content = UNMutableNotificationContent()
         content.title = "Görev Hatırlatması"
-        content.body = "\(taskName) göreviniz yarın teslim zamanı."
+        content.body = "\(taskName) görevinizin yarın teslim zamanı."
         content.sound = .default
         
         let triggerDate = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: notificationDate)
@@ -121,33 +128,17 @@ class StudentAddTaskViewController: UIViewController, UITextFieldDelegate, UITex
         
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
         
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                print("Bildirim planlanamadı: \(error.localizedDescription)")
-            } else {
-                print("Bildirim planlandı.")
-            }
-        }
+        UNUserNotificationCenter.current().add(request)
     }
-
+    
+    @IBAction func saveButtonTapped(_ sender: UIButton) {
+        saveTask()
+    }
+    
     private func showAlert(_ message: String) {
         let alert = UIAlertController(title: "Uyarı", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Tamam", style: .default))
         present(alert, animated: true)
-    }
-    
-    private func addDoneButtonToKeyboard() {
-        let toolbar = UIToolbar()
-        toolbar.sizeToFit()
-        
-        let doneButton = UIBarButtonItem(title: "Tamam", style: .plain, target: self, action: #selector(dismissKeyboard))
-        toolbar.items = [doneButton]
-        
-        descriptionTextView.inputAccessoryView = toolbar
-    }
-    
-    @objc private func dismissKeyboard() {
-        view.endEditing(true)
     }
     
     // Klavyeyi ekranın boş bir yerine tıklayınca kapat

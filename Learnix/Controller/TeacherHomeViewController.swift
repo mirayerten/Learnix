@@ -30,37 +30,7 @@ class TeacherHomeViewController: UITableViewController {
         super.viewWillAppear(animated)
         loadLessons()
     }
-
-    private func loadLessons() {
-        guard let email = currentUserEmail else { return }
-        
-        Firestore.firestore().collection("TeacherLessons")
-            .whereField("teacherEmail", isEqualTo: email)
-            .getDocuments { [weak self] snapshot, error in
-                guard let self = self else { return }
-                
-                if let error = error {
-                    self.showAlert(title: "Hata", message: error.localizedDescription)
-                    return
-                }
-                
-                self.lessons = snapshot?.documents.compactMap { doc in
-                    let data = doc.data()
-                    return Lesson(
-                        id: doc.documentID,
-                        lessonName: data["lessonName"] as? String ?? "",
-                        teacherName: data["teacherName"] as? String ?? "",
-                        teacherEmail: data["teacherEmail"] as? String ?? "",
-                        pdfURL: data["pdfURL"] as? String
-                    )
-                } ?? []
-                
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                }
-            }
-    }
-
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return lessons.count
     }
@@ -69,11 +39,12 @@ class TeacherHomeViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "teacherCell", for: indexPath)
         let lesson = lessons[indexPath.row]
         cell.textLabel?.text = lesson.lessonName
+        cell.textLabel?.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
         let hasPDF = lesson.pdfURL?.isEmpty == false
-        cell.detailTextLabel?.text = hasPDF ? "📎 PDF var" : "PDF yok"
+        cell.detailTextLabel?.text = hasPDF ? "PDF mevcut 📎" : "PDF yok"
         return cell
     }
-
+    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selected = lessons[indexPath.row]
         
@@ -111,15 +82,41 @@ class TeacherHomeViewController: UITableViewController {
         }
     }
     
+    private func loadLessons() {
+        guard let email = currentUserEmail else { return }
+        
+        Firestore.firestore().collection("TeacherLessons")
+            .whereField("teacherEmail", isEqualTo: email)
+            .getDocuments { [weak self] snapshot, error in
+                guard let self = self else { return }
+                
+                if let error = error {
+                    self.showAlert(title: "Hata", message: error.localizedDescription)
+                    return
+                }
+                
+                self.lessons = snapshot?.documents.compactMap { doc in
+                    let data = doc.data()
+                    return Lesson(
+                        id: doc.documentID,
+                        lessonName: data["lessonName"] as? String ?? "",
+                        teacherName: data["teacherName"] as? String ?? "",
+                        teacherEmail: data["teacherEmail"] as? String ?? "",
+                        pdfURL: data["pdfURL"] as? String
+                    )
+                } ?? []
+                
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+            }
+    }
+    
     private func showEditScreen(with lesson: Lesson) {
         if let vc = storyboard?.instantiateViewController(withIdentifier: "TeacherEditLessonViewController") as? TeacherEditLessonViewController {
             vc.lesson = lesson
             navigationController?.pushViewController(vc, animated: true)
         }
-    }
-    
-    @IBAction func addButtonTapped(_ sender: UIBarButtonItem) {
-        performSegue(withIdentifier: "addLesson", sender: nil)
     }
     
     private func deleteLesson(_ lesson: Lesson, at indexPath: IndexPath, completion: @escaping (Bool) -> Void) {
@@ -134,7 +131,11 @@ class TeacherHomeViewController: UITableViewController {
             completion(true)
         }
     }
-
+    
+    @IBAction func addButtonTapped(_ sender: UIBarButtonItem) {
+        performSegue(withIdentifier: "addLesson", sender: nil)
+    }
+    
     private func showAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Tamam", style: .default))

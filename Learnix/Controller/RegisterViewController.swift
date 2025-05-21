@@ -31,7 +31,7 @@ class RegisterViewController: UIViewController {
         }
         
         let selectedRole = roleSegmentedControl.selectedSegmentIndex == 0 ? "student" : "teacher" // rolü belirleme
-
+        
         Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
             if let error = error {
                 self.showAlert(title: "Olmadı", message: "Kayıt başarısız: \(error.localizedDescription)")
@@ -60,5 +60,4 @@ class RegisterViewController: UIViewController {
         alert.addAction(alertAction)
         self.present(alert, animated: true, completion: nil)
     }
-
 }

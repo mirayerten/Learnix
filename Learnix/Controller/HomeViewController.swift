@@ -12,13 +12,13 @@ import FirebaseFirestore
 import SafariServices
 
 class HomeViewController: UITableViewController {
-
+    
     @IBOutlet weak var motivationLabel: UILabel!
     
     let db = Firestore.firestore()
     var dersler: [UserLessons] = []
     var selectedDers: UserLessons?
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.delegate = self
@@ -30,7 +30,7 @@ class HomeViewController: UITableViewController {
         super.viewWillAppear(animated)
         loadDersler()
     }
-
+    
     private func showMotivation() {
         db.collection("Motivations").getDocuments { [weak self] snapshot, error in
             guard let self = self else { return }
@@ -39,12 +39,12 @@ class HomeViewController: UITableViewController {
                 self.motivationLabel.text = "Motivasyon yüklenemedi: \(error.localizedDescription)"
                 return
             }
-
+            
             let cumleler = snapshot?.documents.compactMap { $0["text"] as? String } ?? []
             self.motivationLabel.text = cumleler.randomElement() ?? "Bugün için ilham verici bir söz bulunamadı."
         }
     }
-
+    
     private func loadDersler() {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
@@ -71,9 +71,9 @@ class HomeViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return dersler.count
     }
-
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
+        
         let cell = tableView.dequeueReusableCell(withIdentifier: "homeCell", for: indexPath)
         let ders = dersler[indexPath.row]
         cell.textLabel?.text = "📖 \(ders.lessonName)"
@@ -83,17 +83,16 @@ class HomeViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let ders = dersler[indexPath.row]
-
+        
         guard let urlString = ders.pdfURL, !urlString.isEmpty else {
             showAlert(title: "Dosya Yok", message: "Bu derse ait bir PDF dosyası bulunamadı.")
             return
         }
-
+        
         guard urlString.lowercased().hasPrefix("http"), let url = URL(string: urlString) else {
             showAlert(title: "Geçersiz URL", message: "PDF dosyasının URL'si geçerli değil.")
             return
         }
-        
         present(SFSafariViewController(url: url), animated: true)
     }
     
@@ -124,14 +123,14 @@ class HomeViewController: UITableViewController {
         
         return UISwipeActionsConfiguration(actions: [deleteAction, editAction])
     }
-
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "editLesson",
            let destinationVC = segue.destination as? StudentAddLessonViewController {
             destinationVC.ders = selectedDers
         }
     }
-
+    
     private func showAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Tamam", style: .default))

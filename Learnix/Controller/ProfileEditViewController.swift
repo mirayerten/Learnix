@@ -25,8 +25,10 @@ class ProfileEditViewController: UIViewController, UIImagePickerControllerDelega
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        profileImageView.layer.cornerRadius = profileImageView.frame.size.width / 2
+        profileImageView.layer.cornerRadius = profileImageView.frame.height / 2
         profileImageView.clipsToBounds = true
+        profileImageView.contentMode = .scaleAspectFill
+        fetchUserRole()
     }
     
     @IBAction func selectPhotoTapped(_ sender: UIButton) {
@@ -34,6 +36,22 @@ class ProfileEditViewController: UIViewController, UIImagePickerControllerDelega
         picker.delegate = self
         picker.sourceType = .photoLibrary
         present(picker, animated: true)
+    }
+    
+    func fetchUserRole() {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        db.collection("Users").document(uid).getDocument { snapshot, error in
+            if let error = error {
+                print("Rol alınırken hata: \(error.localizedDescription)")
+                return
+            }
+            
+            if let data = snapshot?.data(), let role = data["role"] as? String {
+                if role == "teacher" {
+                    self.gradeTextField.isHidden = true
+                }
+            }
+        }
     }
     
     // Kullanıcı fotoğraf seçtiğinde çalışır
@@ -92,7 +110,7 @@ class ProfileEditViewController: UIViewController, UIImagePickerControllerDelega
         ]
         
         if let imageUrl = imageUrl {
-            data["profileImageUrl"] = imageUrl
+            data["photoURL"] = imageUrl
         }
         
         db.collection("Users").document(uid).updateData(data) { error in

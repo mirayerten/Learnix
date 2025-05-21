@@ -58,7 +58,6 @@ class LearnViewController: UIViewController {
         
         // Segment değişimini dinle
         segmentedControl.addTarget(self, action: #selector(segmentChanged(_:)), for: .valueChanged)
-        
     }
     
     private func fetchFlashcards() {
@@ -72,10 +71,7 @@ class LearnViewController: UIViewController {
         db.collection("Flashcards")
             .whereField("userID", isEqualTo: userID)
             .getDocuments { snapshot, error in
-                guard let documents = snapshot?.documents, error == nil else {
-                    print("Error fetching flashcards: \(error?.localizedDescription ?? "Unknown error")")
-                    return
-                }
+                guard let documents = snapshot?.documents, error == nil else { return }
                 
                 self.flashcards = documents.compactMap {
                     let data = $0.data()
@@ -89,7 +85,6 @@ class LearnViewController: UIViewController {
                 }
             }
     }
-
     
     private func showFlashcard() {
         guard !flashcards.isEmpty else {
@@ -112,35 +107,8 @@ class LearnViewController: UIViewController {
         showingQuestion.toggle()
     }
     
-    @IBAction func previousTapped(_ sender: UIButton) {
-        guard !flashcards.isEmpty else { return }
-        currentIndex = (currentIndex - 1 + flashcards.count) % flashcards.count
-        showFlashcard()
-    }
-    
-    @IBAction func nextTapped(_ sender: UIButton) {
-        guard !flashcards.isEmpty else { return }
-        currentIndex = (currentIndex + 1) % flashcards.count
-        showFlashcard()
-    }
-    
-    @IBAction func addTapped(_ sender: UIButton) {
-        let alert = UIAlertController(title: "Yeni Kart", message: nil, preferredStyle: .alert)
-        alert.addTextField { $0.placeholder = "Soru" }
-        alert.addTextField { $0.placeholder = "Cevap" }
-        alert.addAction(UIAlertAction(title: "İptal", style: .cancel))
-        alert.addAction(UIAlertAction(title: "Ekle", style: .default) { _ in
-            guard let question = alert.textFields?[0].text, !question.isEmpty, let answer = alert.textFields?[1].text, !answer.isEmpty else { return }
-            self.addFlashcard(question: question, answer: answer)
-        })
-        present(alert, animated: true)
-    }
-    
     private func addFlashcard(question: String, answer: String) {
-        guard let currentUser = Auth.auth().currentUser else {
-            print("Kullanıcı giriş yapmamış.")
-            return
-        }
+        guard let currentUser = Auth.auth().currentUser else { return }
 
         let userID = currentUser.uid
         let data: [String: Any] = ["question": question, "answer": answer, "userID": userID]
@@ -153,7 +121,6 @@ class LearnViewController: UIViewController {
             }
         }
     }
-
     
     private func deleteCurrentFlashcard() {
         guard !flashcards.isEmpty else { return }
@@ -206,7 +173,30 @@ class LearnViewController: UIViewController {
             DispatchQueue.main.async { self.tableView.reloadData() }
         }
     }
-
+    
+    @IBAction func previousTapped(_ sender: UIButton) {
+        guard !flashcards.isEmpty else { return }
+        currentIndex = (currentIndex - 1 + flashcards.count) % flashcards.count
+        showFlashcard()
+    }
+    
+    @IBAction func nextTapped(_ sender: UIButton) {
+        guard !flashcards.isEmpty else { return }
+        currentIndex = (currentIndex + 1) % flashcards.count
+        showFlashcard()
+    }
+    
+    @IBAction func addTapped(_ sender: UIButton) {
+        let alert = UIAlertController(title: "Yeni Kart", message: nil, preferredStyle: .alert)
+        alert.addTextField { $0.placeholder = "Soru" }
+        alert.addTextField { $0.placeholder = "Cevap" }
+        alert.addAction(UIAlertAction(title: "İptal", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Ekle", style: .default) { _ in
+            guard let question = alert.textFields?[0].text, !question.isEmpty, let answer = alert.textFields?[1].text, !answer.isEmpty else { return }
+            self.addFlashcard(question: question, answer: answer)
+        })
+        present(alert, animated: true)
+    }
     
     @IBAction func deleteTapped(_ sender: UIButton) {
         let alert = UIAlertController(title: "Sil", message: "Bu kartı silmek istediğine emin misin?", preferredStyle: .alert)
@@ -235,7 +225,7 @@ extension LearnViewController: UISearchBarDelegate {
         searchBar.resignFirstResponder()
     }
 }
-    // MARK: - UITableView Delegate & DataSource
+
 extension LearnViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return filteredLessons.count
@@ -262,4 +252,3 @@ extension LearnViewController: UITableViewDelegate, UITableViewDataSource {
         }
     }
 }
-
